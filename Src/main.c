@@ -75,8 +75,14 @@ int main(void)
 	   */
 
   	  	  	  //type your code here:
+#if POLLING
+	//Polling for new data, no interrupts
+	USART2_CheckDmaReception();
+	LL_mDelay(10);
+#else
 	  sendInfo(DMA_USART2_BUFFER_SIZE, LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_6));
 	  LL_mDelay(200);
+#endif
   }
   /* USER CODE END 3 */
 }
