@@ -76,7 +76,7 @@ int main(void)
 
   	  	  	  //type your code here:
 	  sendInfo(DMA_USART2_BUFFER_SIZE, LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_6));
-	  LL_mDelay(1000);
+	  LL_mDelay(200);
   }
   /* USER CODE END 3 */
 }
