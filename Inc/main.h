@@ -60,6 +60,9 @@ void Error_Handler(void);
                                                                  0 bit  for subpriority */
 #endif
 
+/* USER CODE BEGIN */
+
+#define MAX_PACKET_SIZE				((uint8_t) 20)
 
 /* Structure data type to store amount of small and capital letters. */
 typedef struct
@@ -68,6 +71,7 @@ typedef struct
 	uint8_t capital_letter;
 }letter_count_;
 
+/* USER CODE END */
 #ifdef __cplusplus
 }
 #endif
