@@ -62,8 +62,6 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN */
 
-#define MAX_PACKET_SIZE				((uint8_t) 20)
-
 /* Structure data type to store amount of small and capital letters. */
 typedef struct
 {

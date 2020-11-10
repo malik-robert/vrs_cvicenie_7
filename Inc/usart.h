@@ -32,6 +32,7 @@
 
 /* USER CODE BEGIN Private defines */
 #define DMA_USART2_BUFFER_SIZE 256
+#define MAX_PACKET_SIZE				((uint8_t) 20)
 
 /* USER CODE END Private defines */
 
