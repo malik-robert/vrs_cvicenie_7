@@ -23,6 +23,7 @@
 #include "dma.h"
 #include "usart.h"
 #include "gpio.h"
+#include "stdio.h"
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -33,12 +34,15 @@ void SystemClock_Config(void);
  *
  * @param1 - received sign
  */
-void proccesDmaData(uint8_t sign);
-
+uint8_t length(uint8_t *str);
+void sendInfo(uint16_t bufferSize, uint16_t dataLength);
+void processDmaData(uint8_t *sign, uint16_t len);
 
 /* Space for your global variables. */
 
 	// type your global variables here:
+letter_count_ g_letter;
+//uint8_t tx_data[] = "Data to send over UART DMA!\n\r";
 
 
 int main(void)
@@ -56,6 +60,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
+  USART2_RegisterCallback(processDmaData);
 
   /* Space for your local variables, callback registration ...*/
 
@@ -70,6 +75,8 @@ int main(void)
 	   */
 
   	  	  	  //type your code here:
+	  sendInfo(DMA_USART2_BUFFER_SIZE, LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_6));
+	  LL_mDelay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -109,13 +116,66 @@ void SystemClock_Config(void)
 /*
  * Implementation of function processing data received via USART.
  */
-void proccesDmaData(uint8_t sign)
-{
-	/* Process received data */
 
-		// type your algorithm here:
+uint8_t length(uint8_t *str) {
+	uint8_t len = 0;
+
+	while (str[len] != '\0') {
+		len++;
+	}
+
+	return len;
 }
 
+void sendInfo(uint16_t bufferSize, uint16_t dataLength) {
+	uint8_t data[30];
+	uint16_t occupiedMemory = bufferSize - dataLength;
+
+	sprintf((char *)data, "Buffer capacity: %d bytes, ", bufferSize);
+	USART2_PutBuffer(data, length(data)*sizeof(uint8_t));		// sizeof(uint8_t) == 1 -> nasobenie len pre uplnost, keby ma retazec iny typ
+	while(LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_7));
+
+	sprintf((char *)data, "occupied memory: %d bytes, ", occupiedMemory);
+	USART2_PutBuffer(data, length(data)*sizeof(uint8_t));
+	while(LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_7));
+
+	sprintf((char *)data, "load [in %%]: %3.2f %%\n\r", (float) occupiedMemory/bufferSize*100);
+	USART2_PutBuffer(data, length(data)*sizeof(uint8_t));
+	while(LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_7));
+}
+
+void processDmaData(uint8_t *sign, uint16_t len) {
+	/* Process received data */
+		// type your algorithm here:
+	static uint8_t s_count = 0, s_start = 0, s_capital_letter = 0, s_small_letter = 0;
+
+	for (uint16_t n = 0; n < len; n++) {
+		if (sign[n] == '#') {
+			s_capital_letter = 0;
+			s_small_letter = 0;
+			s_count = 0;
+			s_start = 1;
+		}
+
+		if (s_start) {
+			if (sign[n] >= 'A' && sign[n] <= 'Z') {
+				s_capital_letter++;
+			}
+			else if (sign[n] >= 'a' && sign[n] <= 'z') {
+				s_small_letter++;
+			}
+
+			if (sign[n] == '$') {
+				g_letter.capital_letter = s_capital_letter;
+				g_letter.small_letter = s_small_letter;
+				s_start = 0;
+			}
+			else if (++s_count > 35) {
+				s_start = 0;
+			}
+		}
+	}
+}
 
 void Error_Handler(void)
 {
