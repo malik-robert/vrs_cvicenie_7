@@ -134,7 +134,7 @@ uint8_t length(uint8_t *str) {
 }
 
 void sendInfo(uint16_t bufferSize, uint16_t dataLength) {
-	uint8_t data[30];
+	uint8_t data[30];	// Vacsi retazec ako 30 znakov by nikdy nemal nastat.
 	uint16_t occupiedMemory = bufferSize - dataLength;
 
 	sprintf((char *)data, "Buffer capacity: %d bytes, ", bufferSize);
@@ -156,6 +156,7 @@ void processDmaData(uint8_t *sign, uint16_t len) {
 	static uint8_t s_count = 0, s_start = 0, s_capital_letter = 0, s_small_letter = 0;
 
 	for (uint16_t n = 0; n < len; n++) {
+		// Pocitadlo sa resetuje zakazdym, ked prijime startovaci znak. (Nebolo specifikovane v zadani, co sa ma robit pri viacerych startovacich znakoch, tak sa zvolil tento sposob.)
 		if (sign[n] == '#') {
 			s_capital_letter = 0;
 			s_small_letter = 0;
@@ -171,6 +172,8 @@ void processDmaData(uint8_t *sign, uint16_t len) {
 				s_small_letter++;
 			}
 
+			// Ked pride ukoncovaci znak, tak zapise spracovany subor znakov.
+			// Premenne sa prepisuju, vzdy pre novy subor znakov. (Nebolo specifikovane v zadani, ci sa ma priratavat, tak sa zvolil tento sposob.)
 			if (sign[n] == '$') {
 				g_letter.capital_letter = s_capital_letter;
 				g_letter.small_letter = s_small_letter;
